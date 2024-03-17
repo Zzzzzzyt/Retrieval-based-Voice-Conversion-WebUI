@@ -11,13 +11,13 @@ i_part = int(sys.argv[3])
 if len(sys.argv) == 7:
     exp_dir = sys.argv[4]
     version = sys.argv[5]
-    is_half = sys.argv[6] == "True"
+    is_half = sys.argv[6].lower() == "true"
 else:
     i_gpu = sys.argv[4]
     exp_dir = sys.argv[5]
     os.environ["CUDA_VISIBLE_DEVICES"] = str(i_gpu)
     version = sys.argv[6]
-    is_half = sys.argv[7] == "True"
+    is_half = sys.argv[7].lower() == "true"
 import fairseq
 import numpy as np
 import soundfile as sf
@@ -116,9 +116,11 @@ else:
                 feats = readwave(wav_path, normalize=saved_cfg.task.normalize)
                 padding_mask = torch.BoolTensor(feats.shape).fill_(False)
                 inputs = {
-                    "source": feats.half().to(device)
-                    if is_half and device not in ["mps", "cpu"]
-                    else feats.to(device),
+                    "source": (
+                        feats.half().to(device)
+                        if is_half and device not in ["mps", "cpu"]
+                        else feats.to(device)
+                    ),
                     "padding_mask": padding_mask.to(device),
                     "output_layer": 9 if version == "v1" else 12,  # layer 9
                 }
